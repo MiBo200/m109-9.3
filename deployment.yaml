@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+  labels:
+    app: phpmyadmin
+    app.kubernetes.io/part-of: petclinic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+        - name: phpmyadmin
+          image: phpmyadmin:5.2.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: PMA_HOST
+              value: petclinic-app-mysql
+            - name: PMA_USER
+              valueFrom:
+                secretKeyRef:
+                  name: petclinic-app-mysql
+                  key: MYSQL_USER
+            - name: PMA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: petclinic-app-mysql
+                  key: MYSQL_PASSWORD
+          resources:
+            limits:
+              cpu: 200Mi
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
