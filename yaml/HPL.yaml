@@ -1,6 +1,9 @@
-kind: Deployment
 apiVersion: apps/v1
+kind: Deployment
 metadata:
+  name: html-openshift-app
+  labels:
+    app: html-openshift-app
 spec:
   replicas: 1
   selector:
@@ -8,20 +11,19 @@ spec:
       app: html-openshift-app
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: html-openshift-app
     spec:
       containers:
         - name: html-openshift-app
-          image: 'image-registry.openshift-image-registry.svc:5000/254196-zlic-mborner1/html-openshift-app@sha256:03f946588ad3b63fbf3019dd1d0276cbe291e2f3d7cc6c11bbe7b187c939afea'
+          image: image-registry.openshift-image-registry.svc:5000/254196-zlic-mborner1/html-openshift-app@sha256:03f946588ad3b63fbf3019dd1d0276cbe291e2f3d7cc6c11bbe7b187c939afea
           ports:
             - containerPort: 8080
               protocol: TCP
+          imagePullPolicy: Always
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
-          imagePullPolicy: Always
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst

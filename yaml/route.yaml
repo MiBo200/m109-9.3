@@ -14,3 +14,16 @@ spec:
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: petclinic-app-phpmyadmin
+spec:
+  to:
+    kind: Service
+    name: petclinic-app-phpmyadmin
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge

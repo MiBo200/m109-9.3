@@ -1,44 +1,63 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: phpmyadmin
+  name: petclinic-app-frontend
+  namespace: 254196-zlic-mborner1
   labels:
-    app: phpmyadmin
-    app.kubernetes.io/part-of: petclinic
+    app: petclinic-app-frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: phpmyadmin
+      app: petclinic-app-frontend
   template:
     metadata:
       labels:
-        app: phpmyadmin
+        app: petclinic-app-frontend
     spec:
       containers:
-        - name: phpmyadmin
-          image: phpmyadmin:5.2.1
-          imagePullPolicy: Always
+        - name: petclinic-app-frontend
+          image: ghcr.io/mibo200/html-openshift-app:v1
           ports:
             - containerPort: 8080
-              protocol: TCP
           env:
-            - name: PMA_HOST
-              value: petclinic-app-mysql
-            - name: PMA_USER
+            - name: SPRING_DATASOURCE_URL
+              value: 'jdbc:mysql://$(DATABASE_HOST):3306/$(MYSQL_DATABASE)?useSSL=false'
+            - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: petclinic-app-mysql
                   key: MYSQL_USER
-            - name: PMA_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: petclinic-app-mysql
-                  key: MYSQL_PASSWORD
           resources:
             limits:
-              cpu: 200Mi
-              memory: 200Mi
+              cpu: 600m
+              memory: 768Mi
             requests:
-              cpu: 100m
+              cpu: 10m
               memory: 100Mi
+              ephemeral-storage: 100Ki
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1002270000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      restartPolicy: Always
+      serviceAccountName: default
+      imagePullSecrets:
+        - name: default-dockercfg-zbfcl
+      nodeSelector:
+        node-role.kubernetes.io/app: ''
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
+        - key: node.kubernetes.io/memory-pressure
+          operator: Exists
+          effect: NoSchedule
